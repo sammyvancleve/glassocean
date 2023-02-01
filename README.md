@@ -1,3 +1,3 @@
 GlassOcean
 
-A tool for organizing and viewing images generated with Stable Diffusion
+A WIP tool for organizing and viewing images generated with Stable Diffusion
