@@ -42,6 +42,7 @@ directory = os.fsencode('.')
 for file in os.listdir(directory):
     filename = os.fsdecode(file)
     if filename.endswith(".png"):
+        path = os.path.abspath(file).decode("utf_8")
         im = Image.open(filename)
         metadata = im.info
         metadata = metadata['parameters']
@@ -55,7 +56,7 @@ for file in os.listdir(directory):
             imagedict[splitinfo[0]] = splitinfo[1]
         print(imagedict)
         cur.execute('''INSERT INTO image(path, prompt, seed, size, model) values (?,?,?,?,?)''', 
-            (filename, prompt, imagedict['Seed'], imagedict['Size'], imagedict['Model']))
+            (path, prompt, imagedict['Seed'], imagedict['Size'], imagedict['Model']))
         con.commit()
 
 #INSERT INTO image values (something, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), 
