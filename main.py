@@ -7,6 +7,18 @@ database = Database("sqlite:///images.db")
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.on_event("startup")
 async def database_connect():
     await database.connect()

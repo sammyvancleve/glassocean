@@ -42,7 +42,8 @@ directory = os.fsencode('.')
 for file in os.listdir(directory):
     filename = os.fsdecode(file)
     if filename.endswith(".png"):
-        path = os.path.abspath(file).decode("utf_8")
+        #path = os.path.abspath(file).decode("utf_8")
+        path = filename
         im = Image.open(filename)
         metadata = im.info
         metadata = metadata['parameters']
