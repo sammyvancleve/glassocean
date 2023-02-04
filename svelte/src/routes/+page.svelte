@@ -7,14 +7,21 @@ import { Lightbox } from 'svelte-lightbox';
 import { base } from "$app/paths";
 import ImageBox from "../lib/ImageBox.svelte";
 import Searchbar from "../lib/Searchbar.svelte";
+import LightBox from "../lib/LightBox.svelte";
 
 let photos = [];
 let visible = false;
 let pageNum = 0;
 let direction = 0;
+let lightboxactive = true;
+let modalOpen = false;
+let photoIndex = 0;
 
-
-console.log(base);
+function handleImageClick (i) {
+    photoIndex = i;
+    console.log("photo " + photoIndex);
+    modalOpen = true;
+}
 
 onMount(async () => {
     const res = await fetch("http://" + window.location.hostname + ":8000/images/0",
@@ -50,6 +57,9 @@ async function loadPage(pageNum) {
 </script>
 
 <body>
+{#if modalOpen}
+    <LightBox on:click={() => modalOpen = false} photos={photos} index={photoIndex} />
+{/if}
 <h1>Glass Ocean</h1>
 <button on:click={lastPage}>back</button>
 <button on:click={nextPage}>next</button>
@@ -59,11 +69,12 @@ async function loadPage(pageNum) {
 {#if visible}
 <div class="gallery">
 {#each photos as photo, i}
-<figure>
-    <Lightbox transitionDuration=0 showCloseButton={false} description={photo.prompt}>
-        <ImageBox src="{"http://" + window.location.hostname + ":8000/pics/" + photo.path}" alt={photo.prompt} offset={(i-(i%5))/5} direction={direction}/>
-    </Lightbox>
-</figure>
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- TODO fix this for accessibility reasons! -->
+<div on:click={() => handleImageClick(i)}>
+        <ImageBox src="{"http://" + window.location.hostname + ":8000/pics/" + photo.path}" alt={photo.prompt} 
+        offset={(i-(i%5))/5} direction={direction} />
+</div>
 {/each}
 </div>
 {/if}
@@ -72,6 +83,7 @@ async function loadPage(pageNum) {
 <style>
     body {
         font-family: Helvetica, "Trebuchet MS", Verdana, sans-serif;
+        position: relative;
     }
     .gallery {
         width: 100%;
@@ -79,7 +91,7 @@ async function loadPage(pageNum) {
         grid-template-columns: repeat(5, 1fr);
         grid-gap: 8px;
     }
-    :global(figure, img) {
+    :global(ImageBox, img) {
         width: 100%;
     }
 </style>
