@@ -6,10 +6,12 @@ import { fly, slide, fade } from 'svelte/transition';
 import { Lightbox } from 'svelte-lightbox';
 import { base } from "$app/paths";
 import ImageBox from "../lib/ImageBox.svelte";
+import Searchbar from "../lib/Searchbar.svelte";
 
 let photos = [];
 let visible = false;
 let pageNum = 0;
+let direction = 0;
 
 
 console.log(base);
@@ -25,13 +27,13 @@ onMount(async () => {
 
 function nextPage() {
     pageNum++;
-    console.log(pageNum);
+    direction = 1;
     loadPage(pageNum);
 }
 
 function lastPage() {
     pageNum--;
-    console.log(pageNum);
+    direction = -1;
     loadPage(pageNum);
 }
 
@@ -51,12 +53,15 @@ async function loadPage(pageNum) {
 <h1>Glass Ocean</h1>
 <button on:click={lastPage}>back</button>
 <button on:click={nextPage}>next</button>
+<div class="search">
+<Searchbar />
+</div>
 {#if visible}
-<div in:fly="{{y: 15, duration: 750}}" class="gallery">
+<div class="gallery">
 {#each photos as photo, i}
 <figure>
-    <Lightbox transitionDuration=75 showCloseButton={false} description={photo.prompt}>
-        <ImageBox src="{"http://" + window.location.hostname + ":8000/pics/" + photo.path}" alt={photo.prompt} offset={(i-(i%5))/5}/>
+    <Lightbox transitionDuration=0 showCloseButton={false} description={photo.prompt}>
+        <ImageBox src="{"http://" + window.location.hostname + ":8000/pics/" + photo.path}" alt={photo.prompt} offset={(i-(i%5))/5} direction={direction}/>
     </Lightbox>
 </figure>
 {/each}
