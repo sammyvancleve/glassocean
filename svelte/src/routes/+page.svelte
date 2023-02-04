@@ -2,9 +2,6 @@
 // @ts-nocheck
 
 import { onMount } from "svelte";
-import { fly, slide, fade } from 'svelte/transition';
-import { Lightbox } from 'svelte-lightbox';
-import { base } from "$app/paths";
 import ImageBox from "../lib/ImageBox.svelte";
 import Searchbar from "../lib/Searchbar.svelte";
 import LightBox from "../lib/LightBox.svelte";
@@ -13,7 +10,6 @@ let photos = [];
 let visible = false;
 let pageNum = 0;
 let direction = 0;
-let lightboxactive = true;
 let modalOpen = false;
 let photoIndex = 0;
 
@@ -60,7 +56,6 @@ async function loadPage(pageNum) {
 {#if modalOpen}
     <LightBox on:click={() => modalOpen = false} photos={photos} index={photoIndex} />
 {/if}
-<h1>Glass Ocean</h1>
 <button on:click={lastPage}>back</button>
 <button on:click={nextPage}>next</button>
 <div class="search">
