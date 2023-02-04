@@ -5,6 +5,7 @@ import { onMount } from "svelte";
 import { fly, slide, fade } from 'svelte/transition';
 import { Lightbox } from 'svelte-lightbox';
 import { base } from "$app/paths";
+import ImageBox from "../lib/ImageBox.svelte";
 
 let photos = [];
 let visible = false;
@@ -14,7 +15,7 @@ let pageNum = 0;
 console.log(base);
 
 onMount(async () => {
-    const res = await fetch("http://127.0.0.1:8000/images/0",
+    const res = await fetch("http://" + window.location.hostname + ":8000/images/0",
     {
         method: 'GET',
     });
@@ -36,7 +37,7 @@ function lastPage() {
 
 async function loadPage(pageNum) {
     visible = false;
-    const res = await fetch("http://127.0.0.1:8000/images/" + pageNum,
+    const res = await fetch("http://" + window.location.hostname + ":8000/images/" + pageNum,
     {
         method: 'GET',
     });
@@ -52,11 +53,10 @@ async function loadPage(pageNum) {
 <button on:click={nextPage}>next</button>
 {#if visible}
 <div in:fly="{{y: 15, duration: 750}}" class="gallery">
-{#each photos as photo}
-<figure >
+{#each photos as photo, i}
+<figure>
     <Lightbox transitionDuration=75 showCloseButton={false} description={photo.prompt}>
-        <img src="http://127.0.0.1:8000/pics/{photo.path}" alt={photo.prompt} />
-        <p>{photo.path}</p>
+        <ImageBox src="{"http://" + window.location.hostname + ":8000/pics/" + photo.path}" alt={photo.prompt} offset={(i-(i%5))/5}/>
     </Lightbox>
 </figure>
 {/each}
@@ -74,7 +74,7 @@ async function loadPage(pageNum) {
         grid-template-columns: repeat(5, 1fr);
         grid-gap: 8px;
     }
-    figure, img {
+    :global(figure, img) {
         width: 100%;
     }
 </style>
