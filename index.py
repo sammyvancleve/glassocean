@@ -20,9 +20,17 @@ def index_dir(dir, db):
             #im = Image.open(dir + filename)
             metadata = im.info
             metadata = metadata['parameters']
-            splitmetadata = metadata.splitlines()
-            prompt = splitmetadata[0] + " ## " + splitmetadata[1]
-            otherinfo = splitmetadata[2].split(", ")
+            if 'Negative prompt:' in metadata:
+                splitmetadata = metadata.splitlines()
+                prompt = splitmetadata[0] + " ## " + splitmetadata[1]
+                otherinfo = splitmetadata[2].split(", ")
+            else:
+                splitmetadata = metadata.splitlines()
+                prompt = splitmetadata[0]
+                print(prompt)
+                print(metadata)
+                otherinfo = splitmetadata[1].split(", ")
+                print(otherinfo)
             imagedict = {} 
             imagedict['Filename'] = filename
             imagedict['dateCreated'] = time.ctime(os.path.getctime(rel_path))

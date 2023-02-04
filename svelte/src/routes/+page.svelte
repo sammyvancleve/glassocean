@@ -19,33 +19,53 @@ onMount(async () => {
         method: 'GET',
     });
     photos = await res.json();
-    visible=true;
+    visible= true;
 })
+
+function nextPage() {
+    pageNum++;
+    console.log(pageNum);
+    loadPage(pageNum);
+}
+
+function lastPage() {
+    pageNum--;
+    console.log(pageNum);
+    loadPage(pageNum);
+}
+
+async function loadPage(pageNum) {
+    visible = false;
+    const res = await fetch("http://127.0.0.1:8000/images/" + pageNum,
+    {
+        method: 'GET',
+    });
+    photos = await res.json();
+    visible = true;
+}
 
 </script>
 
+<body>
 <h1>Glass Ocean</h1>
-<h1>{base}</h1>
-<div class="gallery">
-{#each photos as photo}
+<button on:click={lastPage}>back</button>
+<button on:click={nextPage}>next</button>
 {#if visible}
-<figure in:fly="{{y: 15, duration: 750}}">
-    <Lightbox description={photo.prompt}>
+<div in:fly="{{y: 15, duration: 750}}" class="gallery">
+{#each photos as photo}
+<figure >
+    <Lightbox transitionDuration=75 showCloseButton={false} description={photo.prompt}>
         <img src="http://127.0.0.1:8000/pics/{photo.path}" alt={photo.prompt} />
+        <p>{photo.path}</p>
     </Lightbox>
-    <p >{photo.prompt}</p> 
-    <p>"http://127.0.0.1:8000/pics/{photo.path}"</p>
 </figure>
-
-{/if}
 {/each}
 </div>
+{/if}
+</body>
 
 <style>
-    h1 {
-        font-family: Helvetica, "Trebuchet MS", Verdana, sans-serif;
-    }
-    p {
+    body {
         font-family: Helvetica, "Trebuchet MS", Verdana, sans-serif;
     }
     .gallery {

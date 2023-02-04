@@ -1,7 +1,7 @@
 from setupdb import create_tables
 from index import index_dir
 
-IMAGE_STORE="."
+IMAGE_STORE = "/home/sammy/stable-diffusion-webui/outputs/txt2img-images"
 DB_STORE="images.db"
 
 create_tables(DB_STORE)

@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from databases import Database
 from fastapi import FastAPI
 
-IMAGE_STORE="."
+IMAGE_STORE="/home/sammy/stable-diffusion-webui/outputs/txt2img-images"
 
 database = Database("sqlite:///images.db")
 
