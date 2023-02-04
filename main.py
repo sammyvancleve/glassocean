@@ -1,7 +1,10 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from databases import Database
 from fastapi import FastAPI
+
+IMAGE_STORE="."
 
 database = Database("sqlite:///images.db")
 
@@ -18,6 +21,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/pics", StaticFiles(directory=IMAGE_STORE), name="pics")
 
 @app.on_event("startup")
 async def database_connect():

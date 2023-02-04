@@ -9,7 +9,15 @@ def index_dir(dir, db):
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         if filename.endswith(".png"):
-            im = Image.open(filename)
+            #print(filename)
+            #print(os.path.join(os.getcwd(), dir + filename))
+            #im = Image.open(os.fsdecode(os.path.abspath(file)))
+            rel_path = os.path.join(os.getcwd(), dir + "/" + filename)
+            print(os.fsdecode(rel_path))
+            #im = Image.open(os.path.join(os.getcwd(), dir + "/" + filename))
+            im = Image.open(os.fsdecode(rel_path))
+            #im = Image.open(rel_path.decode("utf_8"))
+            #im = Image.open(dir + filename)
             metadata = im.info
             metadata = metadata['parameters']
             splitmetadata = metadata.splitlines()
@@ -17,7 +25,8 @@ def index_dir(dir, db):
             otherinfo = splitmetadata[2].split(", ")
             imagedict = {} 
             imagedict['Filename'] = filename
-            imagedict['dateCreated'] = time.ctime(os.path.getctime(file))
+            imagedict['dateCreated'] = time.ctime(os.path.getctime(rel_path))
+            #imagedict['dateCreated'] = time.ctime(os.path.getctime(file))
             for info in otherinfo: 
                 splitinfo = info.split(": ",1)
                 imagedict[splitinfo[0]] = splitinfo[1]
