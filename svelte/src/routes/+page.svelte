@@ -56,10 +56,9 @@ async function loadPage(pageNum) {
 {#if modalOpen}
     <LightBox on:click={() => modalOpen = false} photos={photos} index={photoIndex} />
 {/if}
-<button on:click={lastPage}>back</button>
-<button on:click={nextPage}>next</button>
-<div class="search">
-<Searchbar />
+<div class="nav">
+    <button on:click={lastPage}>back</button>
+    <button on:click={nextPage}>next</button>
 </div>
 {#if visible}
 <div class="gallery">
@@ -78,7 +77,6 @@ async function loadPage(pageNum) {
 <style>
     body {
         font-family: Helvetica, "Trebuchet MS", Verdana, sans-serif;
-        position: relative;
     }
     .gallery {
         width: 100%;
@@ -88,5 +86,17 @@ async function loadPage(pageNum) {
     }
     :global(ImageBox, img) {
         width: 100%;
+    }
+    .nav {
+        padding-bottom: 15px;
+    }
+    .nav button {
+        padding: 10px;
+        border: none;
+        text-decoration: none;
+        font-size: 1em;
+        width: 45%;
+        height: 5vh;
+        display: inline-block;
     }
 </style>
