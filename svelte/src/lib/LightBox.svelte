@@ -85,4 +85,12 @@
         width: auto;
     }
 
+    img {
+        padding-top: 1vh;
+        padding-bottom: 1vh;
+        max-height: 80vh;
+        max-width: 80vw;
+        width: auto;
+    }
+
 </style>
