@@ -3,12 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from databases import Database
 from fastapi import FastAPI
+from pydantic import BaseModel
+from index import index_dir
 
 IMAGE_STORE="/home/sammy/stable-diffusion-webui/outputs/txt2img-images"
 
 database = Database("sqlite:///images.db")
 
 app = FastAPI()
+
+class ImageFlag(BaseModel):
+    image_id: int
+    flag: int
 
 #origins = [
     #"http://localhost:5173",
@@ -46,3 +52,12 @@ async def fetch_images(page_num: int):
     query = "SELECT * FROM image ORDER BY path DESC LIMIT 40 OFFSET {}".format(str(offset))
     results = await database.fetch_all(query=query)
     return results
+
+@app.get("/index/")
+async def index():
+    index_dir(IMAGE_STORE, "images.db")
+
+@app.post("/flagimage/")
+async def flag_image(image_flag: ImageFlag):
+    image_flag = image_flag.dict()
+    query = "UPDATE table set flag = {} where id = {}"

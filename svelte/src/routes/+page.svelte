@@ -50,7 +50,35 @@ async function loadPage(pageNum) {
     visible = true;
 }
 
+async function indexDb() {
+    await fetch("http://" + window.location.hostname + ":8000/index/", {
+        method: 'GET',
+    });
+    loadPage(0);
+}
+
+function handleKeyDown(e) {
+    //esc
+    if (e.keyCode == 27) {
+        modalOpen = false;
+    }
+    //left
+    if (e.keyCode == 37) {
+        if (photoIndex > 0) {
+            photoIndex--;
+        }
+    }
+    //right
+    if (e.keyCode == 39) {
+        if (photoIndex < photos.length - 1) {
+            photoIndex++;
+        }
+    }
+}
+
 </script>
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <body>
 {#if modalOpen}
@@ -59,6 +87,7 @@ async function loadPage(pageNum) {
 <div class="nav">
     <button on:click={lastPage}>back</button>
     <button on:click={nextPage}>next</button>
+    <button on:click={indexDb}>index</button>
 </div>
 {#if visible}
 <div class="gallery">
