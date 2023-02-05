@@ -1,32 +1,84 @@
 <script>
 // @ts-nocheck
+    import MdFlag from 'svelte-icons/md/MdFlag.svelte'; 
+    import MdDelete from 'svelte-icons/md/MdDelete.svelte'
+    import Page from '../routes/+page.svelte';
 
     export let index;
     export let photos;
+    let flagvis = true;
+
+    async function flagImage(flag_type) {
+        const res = await fetch("http://" + window.location.hostname + ":8000/flagimage/?image_flag=" + flag_type + "&image_id=" + photos[index].id, {
+            method: 'POST',
+        });
+        let val = await res.json();
+        flagvis = false;
+        if (val == 1) {
+            photos[index].flag = flag_type;
+        }
+        flagvis = true;
+        console.log(flag_type);
+        console.log(val);
+    }
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div on:click class="clickoverlay">
 </div>
-<!--<div class="overlay">-->
-    <div class="lightbox-content">
-        <div class="lightbox-header">
+<div class="lightbox-content">
+    <div class="lightbox-header" />
+    <div class="image-holder">
+        <div class="picdiv">
+            <img src="{"http://" + window.location.hostname + ":8000/pics/" + photos[index].path}" alt={photos[index].path}/>
         </div>
-        <div class="image-holder">
-            <div class="picdiv">
-                <img src="{"http://" + window.location.hostname + ":8000/pics/" + photos[index].path}" alt={photos[index].path}/>
-            </div>
-        </div>
-        <div class="lightbox-footer">
-            <button on:click>close</button>
-            <button on:click={()=>console.log("woop")}>{photos[index].model}</button>
+    </div> 
+    <div class="lightbox-footer">
+        <button on:click>close</button>
+        <button on:click={()=>console.log("woop")}>{photos[index].model}</button>
+        
+        {#if flagvis}
+            {#if photos[index].flag == 1}
+                <div on:click={() => flagImage(0)} class = "flagged"> 
+                <MdFlag />
+                </div>
+                {:else}
+                <div on:click={() => flagImage(1)} class = "unflagged">
+                    <MdFlag />
+                </div>
+                {/if}
+
+                {#if photos[index].flag == -1}
+                <div on:click={() => flagImage(0)} class = "flagged">
+                    <MdDelete />
+                </div>                
+                {:else}
+                <div on:click={() => flagImage(-1)} class = "unflagged">
+                    <MdDelete />
+                </div>
+            {/if}
+        {/if}
+
             <p>Prompt: {photos[index].prompt}</p>
             <p>Seed: {photos[index].seed}</p>
             <p>Size: {photos[index].size}</p>
+            <p>Id: {photos[index].id}</p>
         </div>
-    </div>
-<!---</div>-->
+</div>
 <style>
+    .flagged {
+        display: inline-block;
+        color: black;
+        width: 32px;
+        height: 32px;
+    }
+    .unflagged {
+        display: inline-block;
+        color: grey;
+        width: 32px;
+        height: 32px;
+    }
     .clickoverlay {
         position: fixed;
         z-index: 125;

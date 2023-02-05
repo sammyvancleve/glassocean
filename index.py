@@ -9,15 +9,9 @@ def index_dir(dir, db):
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         if filename.endswith(".png"):
-            #print(filename)
-            #print(os.path.join(os.getcwd(), dir + filename))
-            #im = Image.open(os.fsdecode(os.path.abspath(file)))
             rel_path = os.path.join(os.getcwd(), dir + "/" + filename)
             print(os.fsdecode(rel_path))
-            #im = Image.open(os.path.join(os.getcwd(), dir + "/" + filename))
             im = Image.open(os.fsdecode(rel_path))
-            #im = Image.open(rel_path.decode("utf_8"))
-            #im = Image.open(dir + filename)
             metadata = im.info
             metadata = metadata['parameters']
             if 'Negative prompt:' in metadata:
