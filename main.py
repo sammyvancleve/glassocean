@@ -67,6 +67,11 @@ async def fetch_flagged_images(page_num: int, flag: int):
 @app.post("/flagimage/")
 async def flag_image(image_flag: int, image_id: int):
     query = "UPDATE image SET flag = " + format(str(image_flag)) + " WHERE id = " + format(str(image_id)) + ";"
-    print(query)
+    results = await database.execute(query)
+    return results
+
+@app.post("/rateimage/")
+async def rate_image(rating: int, image_id: int):
+    query = "UPDATE image SET rating = " + format(str(rating)) + " WHERE id = " + format(str(image_id)) + ";"
     results = await database.execute(query)
     return results

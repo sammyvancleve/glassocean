@@ -2,6 +2,8 @@
 // @ts-nocheck
     import MdFlag from 'svelte-icons/md/MdFlag.svelte'; 
     import MdDelete from 'svelte-icons/md/MdDelete.svelte'
+    import MdStar from 'svelte-icons/md/MdStar.svelte'
+    import MdStarBorder from 'svelte-icons/md/MdStarBorder.svelte'
     import Page from '../routes/+page.svelte';
 
     export let index;
@@ -39,6 +41,25 @@
                 flagImage(0);
             }
         }
+        //0 key
+        if (e.keyCode >= 48 && e.keyCode <= 53) {
+            starClick(e.keyCode-48);
+        }
+        console.log(e.keyCode);
+    }
+
+    async function starClick(val) {
+        //Reset rating
+        if (photos[index].rating == val) {
+            photos[index].rating = 0;
+        } else {
+            photos[index].rating = val;
+        }
+        const res = await fetch("http://" + window.location.hostname + ":8000/rateimage/?rating=" + photos[index].rating + "&image_id=" + photos[index].id, {
+            method: 'POST',
+        });
+        let response = await res.json();
+        console.log(response);
     }
 
 </script>
@@ -85,6 +106,19 @@
             {/if}
         {/if}
 
+        {#each Array(5) as star, i}
+                {#if i < photos[index].rating}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div on:click={() => starClick(i+1)} class="flagged">
+                    <MdStar />
+                </div> 
+                {:else}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div on:click={() => starClick(i+1)} class="unflagged">
+                    <MdStarBorder />
+                </div>
+                {/if}
+        {/each}
             <p>Prompt: {photos[index].prompt}</p>
             <p>Seed: {photos[index].seed}</p>
             <p>Size: {photos[index].size}</p>
