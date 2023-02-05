@@ -22,7 +22,28 @@
         console.log(val);
     }
 
+    function handleKeyDown(e) {
+        //F key
+        if (e.keyCode == 70) {
+            if (photos[index].flag != 1) {
+                flagImage(1);
+            } else {
+                flagImage(0);
+            }
+        }
+        //X key
+        if (e.keyCode == 88) {
+            if (photos[index].flag != -1) {
+                flagImage(-1);
+            } else {
+                flagImage(0);
+            }
+        }
+    }
+
 </script>
+
+<svelte:window on:keydown={handleKeyDown} />
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div on:click class="clickoverlay">
@@ -40,20 +61,24 @@
         
         {#if flagvis}
             {#if photos[index].flag == 1}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div on:click={() => flagImage(0)} class = "flagged"> 
-                <MdFlag />
+                    <MdFlag />
                 </div>
                 {:else}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div on:click={() => flagImage(1)} class = "unflagged">
                     <MdFlag />
                 </div>
                 {/if}
 
                 {#if photos[index].flag == -1}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div on:click={() => flagImage(0)} class = "flagged">
                     <MdDelete />
                 </div>                
                 {:else}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div on:click={() => flagImage(-1)} class = "unflagged">
                     <MdDelete />
                 </div>

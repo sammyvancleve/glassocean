@@ -24,6 +24,7 @@ onMount(async () => {
     {
         method: 'GET',
     });
+    pageNum = 0;
     photos = await res.json();
     visible= true;
 })
@@ -35,9 +36,11 @@ function nextPage() {
 }
 
 function lastPage() {
-    pageNum--;
-    direction = -1;
-    loadPage(pageNum);
+    if (pageNum > 0) {
+        pageNum--;
+        direction = -1;
+        loadPage(pageNum);
+    }
 }
 
 async function loadPage(pageNum) {
@@ -66,7 +69,7 @@ function handleKeyDown(e) {
     if (e.keyCode == 37) {
         if (photoIndex > 0) {
             photoIndex--;
-        }
+        } 
     }
     //right
     if (e.keyCode == 39) {
