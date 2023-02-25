@@ -53,6 +53,14 @@ async def fetch_images(page_num: int):
     results = await database.fetch_all(query=query)
     return results
 
+@app.get("/sortby/")
+async def fetch_sorted_images(sort_option: str, page_num: int):
+    offset = page_num * 40
+    print(format(sort_option))
+    query = "SELECT * FROM image ORDER BY " + format(str(sort_option)) + " DESC LIMIT 40 OFFSET " + format(str(offset))
+    results = await database.fetch_all(query=query)
+    return results
+
 @app.get("/index/")
 async def index():
     index_dir(IMAGE_STORE, "images.db")

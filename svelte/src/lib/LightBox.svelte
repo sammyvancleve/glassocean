@@ -77,6 +77,7 @@
         </div>
     </div> 
     <div class="lightbox-footer">
+        <div class="button-holder">
         <button on:click>close</button>
         <button on:click={()=>console.log("woop")}>{photos[index].model}</button>
         
@@ -119,24 +120,36 @@
                 </div>
                 {/if}
         {/each}
+    </div>
             <p>Prompt: {photos[index].prompt}</p>
             <p>Seed: {photos[index].seed}</p>
             <p>Size: {photos[index].size}</p>
             <p>Id: {photos[index].id}</p>
+            <p>CFG: {photos[index].cfg}</p>
         </div>
 </div>
 <style>
+    button {
+        margin-right: 4px;
+        height: 2em;
+        width: auto;
+    }
+    .button-holder {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .flagged {
         display: inline-block;
         color: black;
-        width: 32px;
-        height: 32px;
+        height: 1.2em;
+        width: 1.2em;
     }
     .unflagged {
         display: inline-block;
         color: grey;
-        width: 32px;
-        height: 32px;
+        height: 1.2em;
+        width: 1.2em;
     }
     .clickoverlay {
         position: fixed;

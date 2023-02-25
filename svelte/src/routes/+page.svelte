@@ -12,6 +12,7 @@ let pageNum = 0;
 let direction = 0;
 let modalOpen = false;
 let photoIndex = 0;
+let sortSelection;
 
 function handleImageClick (i) {
     photoIndex = i;
@@ -45,12 +46,19 @@ function lastPage() {
 
 async function loadPage(pageNum) {
     visible = false;
-    const res = await fetch("http://" + window.location.hostname + ":8000/images/" + pageNum,
-    {
-        method: 'GET',
-    });
-    photos = await res.json();
-    visible = true;
+    if (sortOption == "id") {
+        const res = await fetch("http://" + window.location.hostname + ":8000/images/" + pageNum, {
+            method: 'GET',
+        });
+        photos = await res.json();
+        visible = true;
+    } else {
+        const res = await fetch("http://" + window.location.hostname + ":8000/sortby/?sort_option=" + sortSelection + "&page_num=" + pageNum, {
+            method: 'GET',
+        });
+        photos = await res.json();
+        visible = true;
+    }
 }
 
 async function indexDb() {
@@ -79,6 +87,19 @@ function handleKeyDown(e) {
     }
 }
 
+function changeSortOrder() {
+    loadPage(pageNum);
+    console.log(sortSelection);
+}
+
+let sortOption = [
+    "path",
+    "id",
+    "seed",
+    "model",
+    "size"
+]
+
 </script>
 
 <svelte:window on:keydown={handleKeyDown} />
@@ -91,6 +112,13 @@ function handleKeyDown(e) {
     <button on:click={lastPage}>back</button>
     <button on:click={nextPage}>next</button>
     <button on:click={indexDb}>index</button>
+    <select bind:value={sortSelection} on:change={changeSortOrder}>
+        {#each sortOption as x}
+            <option value={x}>
+                {x}
+            </option>
+        {/each}
+    </select>
 </div>
 {#if visible}
 <div class="gallery">
