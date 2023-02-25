@@ -7,12 +7,20 @@ import Searchbar from "../lib/Searchbar.svelte";
 import LightBox from "../lib/LightBox.svelte";
 
 let photos = [];
+let models = [];
 let visible = false;
+let modelsLoaded = false;
+
 let pageNum = 0;
 let direction = 0;
-let modalOpen = false;
 let photoIndex = 0;
+
+let modalOpen = false;
+
 let sortSelection;
+let modelSelection;
+
+let url;
 
 function handleImageClick (i) {
     photoIndex = i;
@@ -21,51 +29,57 @@ function handleImageClick (i) {
 }
 
 onMount(async () => {
-    const res = await fetch("http://" + window.location.hostname + ":8000/images/0",
+    url = "http://" + window.location.hostname + ":8000";
+    pageNum = 0;
+    const photoRes = await fetch(url + "/images/?page_num=0",
     {
         method: 'GET',
     });
-    pageNum = 0;
-    photos = await res.json();
-    visible= true;
+    photos = await photoRes.json();
+    visible = true;
+    const modelRes = await fetch(url + "/models/",
+    {
+        method: 'GET',
+    })
+    models = await modelRes.json();
+    modelsLoaded = true;
 })
 
 function nextPage() {
     pageNum++;
     direction = 1;
-    loadPage(pageNum);
+    loadPage();
 }
 
 function lastPage() {
     if (pageNum > 0) {
         pageNum--;
         direction = -1;
-        loadPage(pageNum);
+        loadPage();
     }
 }
 
-async function loadPage(pageNum) {
+async function loadPage() {
     visible = false;
-    if (sortOption == "id") {
-        const res = await fetch("http://" + window.location.hostname + ":8000/images/" + pageNum, {
-            method: 'GET',
-        });
-        photos = await res.json();
-        visible = true;
-    } else {
-        const res = await fetch("http://" + window.location.hostname + ":8000/sortby/?sort_option=" + sortSelection + "&page_num=" + pageNum, {
-            method: 'GET',
-        });
-        photos = await res.json();
-        visible = true;
+    let query = url + "/images/?sort_option=" + sortSelection;
+    if (modelSelection != "") {
+        query += "&model=" + modelSelection;
     }
+    query += "&page_num=" + pageNum;
+    console.log(query);
+    const res = await fetch(query, {
+        method: 'GET',
+    });
+    photos = await res.json();
+    visible = true;
 }
 
 async function indexDb() {
-    await fetch("http://" + window.location.hostname + ":8000/index/", {
+    await fetch(url + "/index/", {
         method: 'GET',
     });
-    loadPage(0);
+    pageNum = 0;
+    loadPage();
 }
 
 function handleKeyDown(e) {
@@ -88,8 +102,13 @@ function handleKeyDown(e) {
 }
 
 function changeSortOrder() {
-    loadPage(pageNum);
-    console.log(sortSelection);
+    pageNum = 0;
+    loadPage();
+}
+
+function changeModelSelection() {
+    pageNum = 0;
+    loadPage();
 }
 
 let sortOption = [
@@ -97,7 +116,9 @@ let sortOption = [
     "id",
     "seed",
     "model",
-    "size"
+    "size",
+    "flag",
+    "rating"
 ]
 
 </script>
@@ -114,11 +135,17 @@ let sortOption = [
     <button on:click={indexDb}>index</button>
     <select bind:value={sortSelection} on:change={changeSortOrder}>
         {#each sortOption as x}
-            <option value={x}>
-                {x}
-            </option>
+            <option value={x}>{x}</option>
         {/each}
     </select>
+    {#if modelsLoaded}
+        <select bind:value={modelSelection} on:change={changeModelSelection}>
+            <option value="" />
+            {#each models as model}
+                <option value={model.model}>{model.model}</option>
+            {/each}
+        </select>
+    {/if}
 </div>
 {#if visible}
 <div class="gallery">

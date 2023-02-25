@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from databases import Database
@@ -41,36 +41,37 @@ async def database_disconnect():
     await database.disconnect()
 
 @app.get("/images/")
-async def fetch_images():
-    query = "SELECT * FROM image ORDER BY path DESC LIMIT 40"
+async def fetch_images(page_num: int = Query(default=0), sort_option: str = Query(default="path"), 
+                       model: str = Query(default=None), seed: str = Query(default=None),
+                       rating: int = Query(default=None), flag: str = Query(default=None)):
+    offset = page_num * 40
+    query = "SELECT * from image "
+    options = [
+        {'param': 'rating', 'value': rating},
+        {'param': 'flag', 'value': flag},
+    ]
+    options = [x for x in options if x['value'] != None]
+    if model != None:
+        options.append({'param': 'model', 'value': '\'' + model + '\''})
+    if seed != None:
+        options.append({'param': 'seed', 'value': '\'' + seed + '\''})
+    for option in options:
+        query += "WHERE " + format(str(option['param'])) + "=" + format(str(option['value'])) + " "
+        if (len(options) > 1):
+            query += "AND "
+    query += "ORDER BY " + format(str(sort_option)) + " DESC LIMIT 40 OFFSET " + format(str(offset))
     results = await database.fetch_all(query=query)
     return results
 
-@app.get("/images/{page_num}")
-async def fetch_images(page_num: int):
-    offset = page_num * 40
-    query = "SELECT * FROM image ORDER BY path DESC LIMIT 40 OFFSET {}".format(str(offset))
-    results = await database.fetch_all(query=query)
-    return results
-
-@app.get("/sortby/")
-async def fetch_sorted_images(sort_option: str, page_num: int):
-    offset = page_num * 40
-    print(format(sort_option))
-    query = "SELECT * FROM image ORDER BY " + format(str(sort_option)) + " DESC LIMIT 40 OFFSET " + format(str(offset))
+@app.get("/models/")
+async def fetch_models():
+    query = "SELECT DISTINCT model FROM image"
     results = await database.fetch_all(query=query)
     return results
 
 @app.get("/index/")
 async def index():
     index_dir(IMAGE_STORE, "images.db")
-
-@app.get("/fetchflagged")
-async def fetch_flagged_images(page_num: int, flag: int):
-    offset = page_num * 40
-    query = "SELECT * FROM IMAGE WHERE flag = " + format(str(flag)) + " ORDER BY path DESC LIMIT 40 OFFSET " + format(str(offset))
-    results = await database.fetch_all(query=query)
-    return results
 
 @app.post("/flagimage/")
 async def flag_image(image_flag: int, image_id: int):
