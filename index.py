@@ -21,14 +21,10 @@ def index_dir(dir, db):
             else:
                 splitmetadata = metadata.splitlines()
                 prompt = splitmetadata[0]
-                print(prompt)
-                print(metadata)
                 otherinfo = splitmetadata[1].split(", ")
-                print(otherinfo)
             imagedict = {} 
             imagedict['Filename'] = filename
             imagedict['dateCreated'] = time.ctime(os.path.getctime(rel_path))
-            #imagedict['dateCreated'] = time.ctime(os.path.getctime(file))
             for info in otherinfo: 
                 splitinfo = info.split(": ",1)
                 imagedict[splitinfo[0]] = splitinfo[1]

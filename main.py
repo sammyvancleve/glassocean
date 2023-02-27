@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from databases import Database
 from fastapi import FastAPI
 from pydantic import BaseModel
+from send2trash import send2trash
 from index import index_dir
 
 IMAGE_STORE="/home/sammy/stable-diffusion-webui/outputs/txt2img-images"
@@ -82,5 +83,19 @@ async def flag_image(image_flag: int, image_id: int):
 @app.post("/rateimage/")
 async def rate_image(rating: int, image_id: int):
     query = "UPDATE image SET rating = " + format(str(rating)) + " WHERE id = " + format(str(image_id)) + ";"
+    results = await database.execute(query)
+    return results
+
+@app.post("/removeimage/")
+async def remove_image(image_id: int):
+    query = "SELECT * from image WHERE id=" + format(str(image_id))
+    results = await database.fetch_all(query)
+    imagepath = results[0][1]
+    print(IMAGE_STORE + "/" + format(str(imagepath)))
+    try:
+        send2trash(IMAGE_STORE + "/" + format(str(imagepath)))
+    except:
+        print("error deleting file")
+    query = "DELETE FROM image WHERE id=" + format(str(image_id))
     results = await database.execute(query)
     return results

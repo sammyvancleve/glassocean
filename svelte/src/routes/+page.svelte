@@ -19,6 +19,7 @@ let modalOpen = false;
 
 let sortSelection;
 let modelSelection;
+let seedQuery = "";
 
 let url;
 
@@ -82,6 +83,14 @@ async function indexDb() {
     loadPage();
 }
 
+async function removeImage() {
+    const res = await fetch("http://" + window.location.hostname + ":8000/removeimage/?image_id=" + photos[photoIndex].id, {
+            method: 'POST',
+    });
+    modalOpen = false;
+    loadPage();
+}
+
 function handleKeyDown(e) {
     //esc
     if (e.keyCode == 27) {
@@ -111,6 +120,11 @@ function changeModelSelection() {
     loadPage();
 }
 
+function lightboxModelButtonClick() {
+    modelSelection = photos[photoIndex].model;
+    loadPage();
+}
+
 let sortOption = [
     "path",
     "id",
@@ -118,7 +132,7 @@ let sortOption = [
     "model",
     "size",
     "flag",
-    "rating"
+    "rating",
 ]
 
 </script>
@@ -127,7 +141,8 @@ let sortOption = [
 
 <body>
 {#if modalOpen}
-    <LightBox on:click={() => modalOpen = false} photos={photos} index={photoIndex} />
+    <LightBox on:click={() => modalOpen = false} photos={photos} index={photoIndex} deleteMethod={() => removeImage()}
+    modelButtonClick={() => lightboxModelButtonClick()} />
 {/if}
 <div class="nav">
     <button on:click={lastPage}>back</button>
@@ -146,6 +161,7 @@ let sortOption = [
             {/each}
         </select>
     {/if}
+    <input bind:value={seedQuery} />
 </div>
 {#if visible}
 <div class="gallery">
@@ -178,12 +194,12 @@ let sortOption = [
         padding-bottom: 15px;
     }
     .nav button {
-        padding: 10px;
         border: none;
         text-decoration: none;
         font-size: 1em;
-        width: 45%;
-        height: 5vh;
+        width: 49vw;
+        height: 3.5em;
         display: inline-block;
+        margin-bottom: 0.25em;
     }
 </style>

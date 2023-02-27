@@ -8,6 +8,8 @@
 
     export let index;
     export let photos;
+    export let deleteMethod;
+    export let modelButtonClick;
     let flagvis = true;
 
     async function flagImage(flag_type) {
@@ -20,8 +22,6 @@
             photos[index].flag = flag_type;
         }
         flagvis = true;
-        console.log(flag_type);
-        console.log(val);
     }
 
     function handleKeyDown(e) {
@@ -45,7 +45,6 @@
         if (e.keyCode >= 48 && e.keyCode <= 53) {
             starClick(e.keyCode-48);
         }
-        console.log(e.keyCode);
     }
 
     async function starClick(val) {
@@ -59,8 +58,13 @@
             method: 'POST',
         });
         let response = await res.json();
-        console.log(response);
     }
+
+    /*async function deleteImage() {
+        const res = await fetch("http://" + window.location.hostname + ":8000/removeimage/?image_id=" + photos[index].id, {
+            method: 'POST',
+        });
+    }*/
 
 </script>
 
@@ -79,7 +83,7 @@
     <div class="lightbox-footer">
         <div class="button-holder">
         <button on:click>close</button>
-        <button on:click={()=>console.log("woop")}>{photos[index].model}</button>
+        <button on:click={modelButtonClick}>{photos[index].model}</button>
         
         {#if flagvis}
             {#if photos[index].flag == 1}
@@ -121,12 +125,14 @@
                 {/if}
         {/each}
     </div>
-            <p>Prompt: {photos[index].prompt}</p>
-            <p>Seed: {photos[index].seed}</p>
-            <p>Size: {photos[index].size}</p>
-            <p>Id: {photos[index].id}</p>
-            <p>CFG: {photos[index].cfg}</p>
-        </div>
+        <p>Prompt: {photos[index].prompt}</p>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <p>Seed: {photos[index].seed}</p>
+        <p>Size: {photos[index].size}</p>
+        <p>Id: {photos[index].id}</p>
+        <p>CFG: {photos[index].cfg}</p>
+        <button on:click={deleteMethod}>Delete</button>
+    </div>
 </div>
 <style>
     button {
