@@ -14,6 +14,8 @@ def index_dir(dir, db):
             im = Image.open(os.fsdecode(rel_path))
             metadata = im.info
             metadata = metadata['parameters']
+            # Fix double newlines which started coming up for some reason
+            metadata = metadata.replace("\n\n", "\n")
             if 'Negative prompt:' in metadata:
                 splitmetadata = metadata.splitlines()
                 prompt = splitmetadata[0] + " ## " + splitmetadata[1]
