@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 
 import { api } from "~/trpc/react"
+import FolderList from "./folderList"
 
 export function FolderAdder() {
   const utils = api.useUtils()
@@ -23,6 +24,7 @@ export function FolderAdder() {
         }}
         className="flex flex-col gap-2"
       >
+        <FolderList />
         <Input type="text" value={folderPath} onChange={(e) => setFolderPath(e.target.value)}/>
         <Button type="submit"><FolderPlus /> Add Folder</Button>
       </form>

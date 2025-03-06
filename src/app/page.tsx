@@ -4,7 +4,6 @@ import HomePage from "./_components/homePage";
 
 export default async function Home() {
   const apiResult = await api.image.getLatestImagesByCursor({take: 40})
-  console.log('images WWWWW', apiResult)
 
   return (
     <HydrateClient>

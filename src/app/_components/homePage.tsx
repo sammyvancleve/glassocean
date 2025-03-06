@@ -9,6 +9,7 @@ import FullScreenModal from "./fullScreenModal"
 import ImageViewer from "./imageViewer"
 import { api } from "~/trpc/server"
 import { Image, Model, LoraImageWeighting } from "@prisma/client"
+import { Separator } from "~/components/ui/separator"
 
 interface HomePageProps {
   images: Image[]
@@ -73,14 +74,24 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
   }, [focusedImageIndex, updateModalImage])
 
   return (
-      <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-[#efddf1] to-[#c0e3f7] text-white">
-        <div className="container flex flex-col gap-12 px-4 py-16">
+      <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-[#7ae2e6] to-[#d384fc] text-zinc-700">
+        <div className="w-full mx-5 text-zinc-700 text-xl p-4">
+          <h1 className="mb-2 mt-2">GlassOcean</h1>
+          <Separator className="border-t-2 border-slate-500"/>
+        </div>
+        <div className="w-full flex flex-col px-4">
           <div className="grid grid-cols-6 gap-4 sm:grid-cols-5 md:gap-8">
-            <div className="col-span-1 sm:col-span-1">
-              <FolderAdder />
+            <div className="flex col-span-1">
+              <div className="w-7/8 p-4">
+                <FolderAdder />
+              </div>
+              <div className="w-1/8">
+                <Separator orientation="vertical" className="border-l-2 border-slate-500"/>
+              </div>
             </div>
+            
             <div className="col-span-5 sm:col-span-4">
-              <GridGallery columns={5} children={galleryImages}/>
+              <GridGallery columns={6} children={galleryImages}/>
             </div>
           </div>
         </div>

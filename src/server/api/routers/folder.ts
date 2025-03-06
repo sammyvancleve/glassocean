@@ -16,6 +16,11 @@ export const folderRouter = createTRPCRouter({
 
       return folder
     }),
+  
+  getFolders: publicProcedure.query(async ({ ctx }) => {
+    const image = await ctx.db.folder.findMany()
+    return image
+  }),
 
   scanFolder: publicProcedure
     .input(z.object({ id: z.number() }))
