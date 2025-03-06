@@ -16,12 +16,11 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ images }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalImage, setModalImage] = useState('')
+  const [modalImage, setModalImage] = useState<Image | null>(null)
   const [focusedImageIndex, setFocusedImageIndex] = useState(0)
 
-  const openModal = useCallback((image: Image) => {
+  const openModal = useCallback(() => {
     setIsModalOpen(true)
-    setModalImage(image)
   }, [])
 
   const closeModal = () => {
@@ -29,9 +28,12 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
   }
 
   const galleryImages = useMemo(() => {
-    return images.map((image, imageIndex) => {
-      const handleClick = () => openModal(image)
-      return <GalleryImage key={imageIndex} src={`/api/image/${image.id}`} onClick={handleClick} />
+    return images.map((image, imageIndex: number) => {
+      const handleClick = (imageIndex: number) => {
+        setFocusedImageIndex(imageIndex)
+        openModal()
+      }
+      return <GalleryImage key={imageIndex} src={`/api/image/${image.id}`} onClick={() => handleClick(imageIndex)} />
     })
   }, [images, openModal])
 
@@ -62,7 +64,7 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
 
   const updateModalImage = useCallback(() => {
     if (images[focusedImageIndex]) {
-      setModalImage(`/api/image/${images[focusedImageIndex].id}`)
+      setModalImage(images[focusedImageIndex])
     }
   }, [focusedImageIndex, images])
   
@@ -90,7 +92,7 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
             className="relative w-[75%] h-[85%] bg-white flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <ImageViewer image={images[focusedImageIndex]} src={modalImage} />
+            <ImageViewer image={images[focusedImageIndex]} />
           </div>
         </FullScreenModal>
       </main>

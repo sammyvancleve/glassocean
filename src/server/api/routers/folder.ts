@@ -33,4 +33,4 @@ export const folderRouter = createTRPCRouter({
           return false
         }
     }),
-});
+})

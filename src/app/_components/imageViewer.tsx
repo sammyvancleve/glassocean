@@ -12,7 +12,6 @@ type AspectRatio = {
 }
 
 interface GalleryImageProps {
-  src: string
   alt?: string
   onClick?: () => void
   aspectRatio?: AspectRatio // e.g., "1/1", "16/9", "4/3"
@@ -20,14 +19,13 @@ interface GalleryImageProps {
   image?: DbImage
 }
 
-const ModalImageViewer: React.FC<GalleryImageProps> = React.memo(({ src, alt = 'Image', onClick, aspectRatio, className, image }) => {
+const ModalImageViewer: React.FC<GalleryImageProps> = React.memo(({ alt = 'Image', onClick, aspectRatio, className, image }) => {
   if (!image) return null
-  console.log('image', src)
 
   return (
     <div className='grid gap-4 w-full h-full grid-cols-2'>
         <div className='relative col-span-1'>
-            <Image fill={true} src={src} alt="Image" className="object-contain" />
+            <Image fill={true} src={`/api/image/${image.id}`} alt="Image" className="object-contain" />
         </div>
         <div className='w-full col-span-1 text-black overflow-scroll'>
             <p>Hash: {image.hash}</p>
