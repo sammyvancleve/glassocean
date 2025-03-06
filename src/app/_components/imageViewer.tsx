@@ -27,7 +27,7 @@ const ModalImageViewer: React.FC<GalleryImageProps> = React.memo(({ alt = 'Image
         <div className='relative col-span-1'>
             <Image fill={true} src={`/api/image/${image.id}`} alt="Image" className="object-contain" />
         </div>
-        <div className='w-full col-span-1 text-black overflow-scroll'>
+        <div className='bg-white rounded-sm w-full col-span-1 text-black overflow-scroll p-2'>
             <p>Hash: {image.hash}</p>
             <p>Prompt: {image.prompt}</p>
             {image.loras &&

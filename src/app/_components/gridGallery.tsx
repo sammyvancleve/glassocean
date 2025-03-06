@@ -2,16 +2,17 @@ import React from 'react'
 import clsx from 'clsx'
 
 interface GalleryProps {
-    children: React.ReactNode
-    columns?: number
+    children: React.ReactNode,
+    columns?: number,
+    className?: string
 }
 
 
 
-const GridGallery: React.FC<GalleryProps> = React.memo(({ children, columns = 4 }) => {
+const GridGallery: React.FC<GalleryProps> = React.memo(({ children, columns = 4, className }) => {
     const validChildren = React.Children.toArray(children).filter(React.isValidElement)
 
-    const gridClass = clsx('grid gap-4 w-full h-full', {
+    const gridClass = clsx('grid gap-4 w-full h-full', className, {
         'grid-cols-2': columns === 3,
         'grid-cols-3': columns === 3,
         'grid-cols-4': columns === 4,
@@ -20,7 +21,6 @@ const GridGallery: React.FC<GalleryProps> = React.memo(({ children, columns = 4 
         'grid-cols-7': columns === 7,
         'grid-cols-8': columns === 8,
     })
-
 
     return (
         <div className={gridClass}>
