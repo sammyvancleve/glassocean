@@ -1,13 +1,11 @@
 "use client"
 
-import { FolderPlus } from "lucide-react"
-import { useState } from "react"
-import { Button } from "~/components/ui/button"
-import { Input } from "~/components/ui/input"
+import React from "react"
 
 import { api } from "~/trpc/react"
 
-const FolderList = () => {
+const FolderList: React.FC = React.memo(() => {
+// const FolderList = () => {
   const { data: folders, } = api.folder.getFolders.useQuery()
 
   return (
@@ -24,5 +22,6 @@ const FolderList = () => {
     </div>
   )
 }
+)
 
 export default FolderList

@@ -1,15 +1,14 @@
 'use client'
 
-import { FolderAdder } from "./folder"
-
+import FolderAdder from "./folder"
 import GalleryImage from "./galleryImage"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import GridGallery from "./gridGallery"
 import FullScreenModal from "./fullScreenModal"
 import ImageViewer from "./imageViewer"
-import { api } from "~/trpc/server"
 import { Image, Model, LoraImageWeighting } from "@prisma/client"
 import { Separator } from "~/components/ui/separator"
+import SideBar from "./sideBar"
 
 interface HomePageProps {
   images: Image[]
@@ -19,24 +18,32 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImage, setModalImage] = useState<Image | null>(null)
   const [focusedImageIndex, setFocusedImageIndex] = useState(0)
+  const galleryImageRefs = useRef<(HTMLDivElement | null)[]>([]); // Ref to gallery images
 
   const openModal = useCallback(() => {
+    console.log('index', focusedImageIndex)
     setIsModalOpen(true)
   }, [])
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false)
-  }
+  }, [])
 
   const galleryImages = useMemo(() => {
     return images.map((image, imageIndex: number) => {
       const handleClick = (imageIndex: number) => {
-        setFocusedImageIndex(imageIndex)
+        updateModalImage(imageIndex)
         openModal()
       }
-      return <GalleryImage key={imageIndex} src={`/api/image/${image.id}`} onClick={() => handleClick(imageIndex)} />
+      return (
+        <GalleryImage
+          key={imageIndex}
+          src={`/api/image/${image.id}`}
+          onClick={() => handleClick(imageIndex)}
+        />
+  )
     })
-  }, [images, openModal])
+  }, [images])
 
   const handleEsc = useCallback((event: { key: string }) => {
     if (event.key === 'Escape') {
@@ -45,13 +52,19 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
   }, [closeModal])
   
   const handleArrowKeys = useCallback((event: KeyboardEvent) => {
+    console.log('focusedImageIndex', focusedImageIndex);
     if (event.key === 'ArrowRight') {
-      setFocusedImageIndex((prevIndex) => Math.min(images.length - 1, prevIndex + 1))
+      if (focusedImageIndex < images.length - 1) {
+        updateModalImage(focusedImageIndex + 1);
+      }
     }
     if (event.key === 'ArrowLeft') {
-      setFocusedImageIndex((prevIndex) => Math.max(0, prevIndex - 1))
+      if (focusedImageIndex > 0) {
+        updateModalImage(focusedImageIndex - 1);
+      }
     }
-  }, [images.length])
+  }, [focusedImageIndex, images.length]);
+  
   
   useEffect(() => {
     window.addEventListener('keydown', handleEsc)
@@ -63,49 +76,44 @@ const HomePage: React.FC<HomePageProps> = ({ images }) => {
     }
   }, [handleEsc, handleArrowKeys])
 
-  const updateModalImage = useCallback(() => {
-    if (images[focusedImageIndex]) {
-      setModalImage(images[focusedImageIndex])
+  const updateModalImage = useCallback((index: number) => {
+    if (images[index]) {
+      setFocusedImageIndex(index)
+      setModalImage(images[index])
     }
-  }, [focusedImageIndex, images])
-  
-  useEffect(() => {
-    updateModalImage()
-  }, [focusedImageIndex, updateModalImage])
+  }, [images])
 
   return (
-      <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-[#7ae2e6] to-[#d384fc] text-zinc-700">
+      <main className="flex min-h-screen flex-col items-center bg-fixed bg-gradient-to-b from-[#eefdfd] to-[#fcf5ff] text-zinc-700">
         <div className="w-full mx-5 text-zinc-700 text-xl p-4">
           <h1 className="mb-2 mt-2">GlassOcean</h1>
-          <Separator className="border-t-2 border-slate-500"/>
+          <Separator className="border-t-2 border-slate-300"/>
         </div>
-        <div className="w-full flex flex-col px-4">
-          <div className="grid grid-cols-6 gap-4 sm:grid-cols-5 md:gap-8">
+        <div className="w-full flex flex-col">
+          <div className="grid grid-cols-6 sm:grid-cols-5 md:gap-4">
             <div className="flex col-span-1">
-              <div className="w-7/8 p-4">
-                <FolderAdder />
-              </div>
-              <div className="w-1/8">
-                <Separator orientation="vertical" className="border-l-2 border-slate-500"/>
-              </div>
+              <SideBar />
+              <Separator orientation="vertical" className="border-l-2 border-slate-300"/>
             </div>
             
-            <div className="col-span-5 sm:col-span-4">
+            <div className="col-span-5 sm:col-span-4 pr-4">
               <GridGallery columns={6} children={galleryImages}/>
             </div>
           </div>
         </div>
-        <FullScreenModal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-        >
-          <div
-            className="relative w-[75%] h-[85%] bg-white flex items-center justify-center p-4"
-            onClick={(e) => e.stopPropagation()}
+        {isModalOpen && modalImage && (
+          <FullScreenModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
           >
-            <ImageViewer image={images[focusedImageIndex]} />
-          </div>
-        </FullScreenModal>
+            <div
+              className="relative w-[75%] h-[85%] bg-white flex items-center justify-center p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ImageViewer image={images[focusedImageIndex]} />
+            </div>
+          </FullScreenModal>
+        )}
       </main>
   )
 }

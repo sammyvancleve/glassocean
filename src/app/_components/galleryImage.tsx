@@ -4,6 +4,8 @@ import Image from "next/image"
 
 import { AspectRatio } from '~/components/ui/aspect-ratio'
 
+import { motion } from "motion/react"
+
 type AspectRatio = {
     w: number,
     h: number
@@ -21,11 +23,13 @@ const GalleryImage: React.FC<GalleryImageProps> = React.memo(({ src, alt = 'Imag
   console.log('image', src)
 
   return (
-    <div onClick={onClick} className="group bg-black bg-opacity-10 rounded-md hover:shadow-lg transition-shadow duration-200">
-      <AspectRatio ratio={3 / 4} className="overflow-hidden">
-        <Image fill={true} src={src} alt="Image" className="object-contain transition-transform duration-300 group-hover:scale-105" />
+    <motion.div whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.9 }}
+    onHoverStart={() => console.log('hover started!')} onClick={onClick} className="group bg-black bg-opacity-10 rounded-md hover:shadow-lg transition-shadow duration-200">
+     <AspectRatio ratio={3 / 4} className="overflow-hidden">
+        <Image fill={true} src={src} alt="Image" className="object-cover rounded-sm" />
       </AspectRatio>
-    </div>
+    </motion.div>
   )
 })
 

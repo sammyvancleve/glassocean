@@ -7,8 +7,10 @@ import { Input } from "~/components/ui/input"
 
 import { api } from "~/trpc/react"
 import FolderList from "./folderList"
+import React from "react"
 
-export function FolderAdder() {
+const FolderAdder: React.FC = React.memo(() => {
+// const FolderAdder = () => {
   const utils = api.useUtils()
   const addFolder = api.folder.addFolderToDatabase.useMutation()
   const scanFolder = api.folder.scanFolder.useMutation()
@@ -24,10 +26,15 @@ export function FolderAdder() {
         }}
         className="flex flex-col gap-2"
       >
+        <Button className="bg-transparent text-blue-500 w-full hover:bg-blue-500 hover:text-white transition-all duration-350">
+          Images
+        </Button>
         <FolderList />
         <Input type="text" value={folderPath} onChange={(e) => setFolderPath(e.target.value)}/>
         <Button type="submit"><FolderPlus /> Add Folder</Button>
       </form>
     </div>
   )
-}
+})
+
+export default FolderAdder

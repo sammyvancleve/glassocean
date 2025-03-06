@@ -6,7 +6,7 @@ interface ModalProps {
     children: React.ReactNode
 }
 
-const FullScreenModal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const FullScreenModal: React.FC<ModalProps> = React.memo(({ isOpen, onClose, children }) => {
     //TODO only display content when it's finished loading
     if (!isOpen) return null
 
@@ -18,6 +18,6 @@ const FullScreenModal: React.FC<ModalProps> = ({ isOpen, onClose, children }) =>
             {children}
         </div>
     )
-}
+})
 
 export default FullScreenModal
