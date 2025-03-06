@@ -23,7 +23,7 @@ export const folderRouter = createTRPCRouter({
         const folder = await ctx.db.folder.findUnique({
           where: {
             id: input.id
-          }
+          },
         })
         if (folder?.folderPath) {
           await scanFolder(folder, folder.folderPath, ctx.db)

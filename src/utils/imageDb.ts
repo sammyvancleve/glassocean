@@ -1,10 +1,18 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 
 export const writeSingleImageToDatabase = async (image: Prisma.ImageCreateInput, db: PrismaClient) => {
-    console.log('wtf', image)
     try {
-        console.log('trying to write...')
-        await db.image.create({data: image})
+        if (image) {
+            await db.image.upsert({
+                where: {
+                    hash: image.hash
+                },
+                create: {
+                    ...image
+                },
+                update: {}
+            })
+        } 
     } catch (e) {
         console.error(e)
     }

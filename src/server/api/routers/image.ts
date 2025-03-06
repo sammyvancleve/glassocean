@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { db } from "~/server/db";
 
 const CreatedAtCursorSchema = z.object({
   id: z.number(),
@@ -68,6 +69,14 @@ export const imageRouter = createTRPCRouter({
         take: input.take,
         skip: input.cursor ? 1 : 0,
         cursor: input.cursor ? { id: input.cursor.id, createdAt: input.cursor.createdAt } : undefined,
+        include: {
+          loras: {
+            include: {
+              model: true,
+            }
+          },
+          model: true
+        }
       });
 
       let idForCursorPagination = null
@@ -112,39 +121,48 @@ export const imageRouter = createTRPCRouter({
   addImageToDatabase: publicProcedure
     .input(ImageSchema)
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.image.create({
-        data: {
-          ...input,
-          promptLowerCase : input.prompt.toLowerCase(),
-          flag: 0,
-          rating: 0,
-          model: {
-            connectOrCreate: {
-              where: { hash: input.model.hash },
-              create: { ...input.model }
-            }
-          },
-          folderId: undefined,
-          //excluding folderId fixes things???
-          folder: {
-            connect: {
-              id: input.folderId
-            }
-          },
-          loras: {
-            create: input.loras.map(lora => {
-              return {
-                model: {
-                  connectOrCreate: {
-                    where: { hash: lora.model.hash },
-                    create: { ...lora.model }
-                  }
-                },
-                weight: lora.weight
+      const existingImage = await ctx.db.image.findUnique({
+        where: {
+          hash: input.hash,
+        }
+      })
+      if (!existingImage) {
+        return ctx.db.image.create({
+          data: {
+            ...input,
+            promptLowerCase : input.prompt.toLowerCase(),
+            flag: 0,
+            rating: 0,
+            model: {
+              connectOrCreate: {
+                where: { hash: input.model.hash },
+                create: { ...input.model }
               }
-            })
-          }
-        },
-      });
+            },
+            folderId: undefined,
+            //excluding folderId fixes things???
+            folder: {
+              connect: {
+                id: input.folderId
+              }
+            },
+            loras: {
+              create: input.loras.map(lora => {
+                return {
+                  model: {
+                    connectOrCreate: {
+                      where: { hash: lora.model.hash },
+                      create: { ...lora.model }
+                    }
+                  },
+                  weight: lora.weight
+                }
+              })
+            }
+          },
+        })
+      } else {
+        return null
+      }
     }),
 });
