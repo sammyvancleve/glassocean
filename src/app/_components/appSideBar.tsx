@@ -60,7 +60,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ onSetDisplay }) => {
                   <SidebarMenuButton 
                   onClick={(e) => {
                     e.preventDefault();
-                    // Call the onSetDisplay prop passed from HomePage
                     onSetDisplay(item.title);
                   }}
                   asChild>

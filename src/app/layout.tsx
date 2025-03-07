@@ -1,27 +1,31 @@
-import "~/styles/globals.css";
-
+import '~/styles/globals.css'
+import { SidebarProvider } from '~/components/ui/sidebar'
+import AppSidebar from "./_components/appSideBar"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ClientProvider } from '~/utils/provider'
 import { GeistSans } from "geist/font/sans";
-import { type Metadata } from "next";
+import { TRPCReactProvider } from '~/trpc/react'
 
-import { TRPCReactProvider } from "~/trpc/react";
-
-export const metadata: Metadata = {
-  title: "GlassOcean",
-  description: "Stable diffusion image viewer",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
+const queryClient = new QueryClient()
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-            <head>
+      <head>
         <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
-        {/* rest of your scripts go under */}
       </head>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+      <TRPCReactProvider>
+        <SidebarProvider>
+          <main className="w-full bg-fixed bg-gradient-to-b from-[#eefdfd] to-[#fcf5ff] text-zinc-700">
+            {children}
+          </main>
+          </SidebarProvider>
+      </TRPCReactProvider>
       </body>
     </html>
   );

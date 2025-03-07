@@ -24,7 +24,7 @@ const GalleryImage: React.FC<GalleryImageProps> = React.memo(({ src, alt = 'Imag
 
   return (
     <motion.div whileHover={{ scale: 1.03 }}
-    whileTap={{ scale: 0.9 }}
+    whileTap={{ scale: 1.00 }}
     onHoverStart={() => console.log('hover started!')} onClick={onClick} className="group bg-black bg-opacity-10 rounded-md hover:shadow-lg transition-shadow duration-200">
      <AspectRatio ratio={3 / 4} className="overflow-hidden">
         <Image fill={true} src={src} alt="Image" className="object-cover rounded-sm" />
