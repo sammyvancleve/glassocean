@@ -1,11 +1,11 @@
-import { z } from "zod";
+import { LucideTable, } from 'lucide-react'
+import { z, } from 'zod'
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { db } from "~/server/db";
+import { createTRPCRouter, publicProcedure, } from '~/server/api/trpc'
 
 const CreatedAtCursorSchema = z.object({
   id: z.number(),
-  createdAt: z.date()
+  createdAt: z.date(),
 })
 
 const ModelType = z.enum([
@@ -21,8 +21,8 @@ const ModelType = z.enum([
   'clip_vision',
   'spandrel_image_to_image',
   't5_encoder',
-  'clip_embed',
-]);
+  'clip_embed'
+])
 
 const ModelBase = z.enum(['any', 'sd-1', 'sd-2', 'sd-3', 'sdxl', 'sdxl-refiner', 'flux'])
 
@@ -36,12 +36,10 @@ const ModelSchema = z.object({
 
 const LoraSchema = z.object({
   model: ModelSchema,
-  weight: z.number()
+  weight: z.number(),
 })
 
-const FolderSchema = z.object({
-  folderPath: z.string()
-})
+const FolderSchema = z.object({folderPath: z.string(),})
 
 const ImageSchema = z.object({
   seed: z.string(),
@@ -56,113 +54,175 @@ const ImageSchema = z.object({
 })
 
 export const imageRouter = createTRPCRouter({
-  getLatestImage: publicProcedure.query(async ({ ctx }) => {
+  getLatestImage: publicProcedure.query(async ({ ctx, }) => {
     const image = await ctx.db.image.findFirst()
     return image
   }),
 
-  getLatestImagesByCursor: publicProcedure
-    .input(z.object({ take: z.number(), cursor: CreatedAtCursorSchema.optional() }))
-    .query(async ({ ctx, input }) => {
+  initialPageLoad: publicProcedure
+    .input(z.object({ take: z.number(), }))
+    .query(async ({ ctx, input, }) => {
       const images = await ctx.db.image.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { id: 'desc', },
+        take: input.take,
+      })
+      const totalImages = await ctx.db.image.count()
+      return { images, totalImages, }
+    }),
+
+  getTotalImages: publicProcedure
+    .query(async ({ ctx, }) => {
+      const totalImages = await ctx.db.image.count()
+      return { totalImages, }
+    }),
+
+  getLatestImagesByCursor: publicProcedure
+    .input(z.object({ take: z.number(), cursor: CreatedAtCursorSchema.optional(), }))
+    .query(async ({ ctx, input, }) => {
+      const images = await ctx.db.image.findMany({
+        orderBy: { createdAt: 'desc', },
         take: input.take,
         skip: input.cursor ? 1 : 0,
-        cursor: input.cursor ? { id: input.cursor.id, createdAt: input.cursor.createdAt } : undefined,
+        cursor: input.cursor ? { id: input.cursor.id, createdAt: input.cursor.createdAt, } : undefined,
         include: {
-          loras: {
-            include: {
-              model: true,
-            }
-          },
-          model: true
-        }
-      });
+          loras: {include: {model: true,},},
+          model: true,
+        },
+      })
 
       let idForCursorPagination = null
       if (images?.length) {
         idForCursorPagination = images[images.length - 1]?.id
       }
 
-      return { images, idForCursorPagination }
-  }),
+      return { images, idForCursorPagination, }
+    }),
+
+  getImagesByPage: publicProcedure
+    .input(z.object({
+      take: z.number(), page: z.number(), filteringOn: z.string(), query: z.string().array(), sortBy: z.string(),
+    }))
+    .query(async ({ctx, input,}) => {
+      const filter = {
+        take: input.take,
+        skip: input.take * (input.page - 1),
+        include: {
+          loras: {include: {model: true,},},
+          model: true,
+        },
+        where: {},
+        orderBy: {},
+      }
+      switch (input.filteringOn) {
+        case 'prompt':
+          filter.where = {promptLowerCase: {contains: input.query[0]?.toLowerCase(),},}
+          break
+        case 'prompt_exact':
+          filter.where = {
+            prompt: {equals: input.query[0],},
+            negativePrompt: {equals: input.query[1],},
+          }
+          break
+        case 'model':
+          filter.where = {model: {id: parseInt(input.query[0] ?? '0', 10),},}
+          break
+      }
+      switch (input.sortBy) {
+        case 'latest':
+          filter.orderBy = { createdAt: 'desc', }
+          break
+        case 'id':
+          filter.orderBy = { id: 'desc', }
+          break
+      }
+      const images = await ctx.db.image.findMany(filter)
+      return { images, }
+    }),
+
+  getLatestImagesByPage: publicProcedure
+    .input(z.object({ take: z.number(), page: z.number(), }))
+    .query(async ({ ctx, input, }) => {
+      const images = await ctx.db.image.findMany({
+        orderBy: { id: 'desc', },
+        take: input.take,
+        skip: input.take * (input.page - 1),
+        include: {
+          loras: {include: {model: true,},},
+          model: true,
+        },
+      })
+      return { images, }
+    }),
+
+  addBlurUrl: publicProcedure
+    .input(z.object({ id: z.number(), blurUrl: z.string(), }))
+    .mutation(async ({ ctx, input, }) => {
+      const updated = await ctx.db.image.update({
+        where: { id: input.id, },
+        data: { blurUrl: input.blurUrl, },
+      })
+      
+      return updated
+    }),
 
   getImagesWithExactPromptText: publicProcedure
-    .input(z.object({ prompt: z.string(), negativePrompt: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .input(z.object({ prompt: z.string(), negativePrompt: z.string(), }))
+    .query(async ({ ctx, input, }) => {
       const images = await ctx.db.image.findMany({
         where: {
-          prompt: {
-            equals: input.prompt
-          },
-          negativePrompt: {
-            equals: input.negativePrompt
-          }
-        }
+          prompt: {equals: input.prompt,},
+          negativePrompt: {equals: input.negativePrompt,},
+        },
       })
 
       return images
     }),
-  
+
   getUserSearchByPromptText: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const images = await ctx.db.image.findMany({
-        where: {
-          promptLowerCase: {
-            contains: input.text.toLowerCase(),
-          }
-        }
-      })
+    .input(z.object({ text: z.string(), }))
+    .query(async ({ ctx, input, }) => {
+      const images = await ctx.db.image.findMany({where: {promptLowerCase: {contains: input.text.toLowerCase(),},},})
 
       return images
     }),
 
   addImageToDatabase: publicProcedure
     .input(ImageSchema)
-    .mutation(async ({ ctx, input }) => {
-      const existingImage = await ctx.db.image.findUnique({
-        where: {
-          hash: input.hash,
-        }
-      })
+    .mutation(async ({ ctx, input, }) => {
+      const existingImage = await ctx.db.image.findUnique({where: {hash: input.hash,},})
       if (!existingImage) {
         return ctx.db.image.create({
           data: {
             ...input,
-            promptLowerCase : input.prompt.toLowerCase(),
+            promptLowerCase: input.prompt.toLowerCase(),
             flag: 0,
             rating: 0,
             model: {
               connectOrCreate: {
-                where: { hash: input.model.hash },
-                create: { ...input.model }
-              }
+                where: { hash: input.model.hash, },
+                create: { ...input.model, },
+              },
             },
             folderId: undefined,
             //excluding folderId fixes things???
-            folder: {
-              connect: {
-                id: input.folderId
-              }
-            },
+            folder: {connect: {id: input.folderId,},},
             loras: {
               create: input.loras.map(lora => {
                 return {
                   model: {
                     connectOrCreate: {
-                      where: { hash: lora.model.hash },
-                      create: { ...lora.model }
-                    }
+                      where: { hash: lora.model.hash, },
+                      create: { ...lora.model, },
+                    },
                   },
-                  weight: lora.weight
+                  weight: lora.weight,
                 }
-              })
-            }
+              }),
+            },
           },
         })
       } else {
         return null
       }
     }),
-});
+})

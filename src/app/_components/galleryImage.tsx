@@ -1,35 +1,34 @@
 import React from 'react'
 
-import Image from "next/image"
+import Image from 'next/image'
 
-import { AspectRatio } from '~/components/ui/aspect-ratio'
+import { AspectRatio, } from '~/components/ui/aspect-ratio'
 
-import { motion } from "motion/react"
-
-type AspectRatio = {
-    w: number,
-    h: number
+type AspectWH = {
+  w: number,
+  h: number
 }
 
 interface GalleryImageProps {
   src: string,
+  blurUrl?: string,
   alt?: string,
   onClick?: () => void,
-  aspectRatio?: AspectRatio,
+  aspectRatio?: AspectWH,
   className?: string
+  enableBlur?: boolean,
 }
 
-const GalleryImage: React.FC<GalleryImageProps> = React.memo(({ src, alt = 'Image', onClick, aspectRatio, className }) => {
-  console.log('image', src)
-
+const GalleryImage: React.FC<GalleryImageProps> = React.memo(({
+  src, blurUrl, onClick, aspectRatio = {w: 3, h: 4,}, className, 
+}) => {
   return (
-    <motion.div whileHover={{ scale: 1.03 }}
-    whileTap={{ scale: 1.00 }}
-    onHoverStart={() => console.log('hover started!')} onClick={onClick} className="group bg-black bg-opacity-10 rounded-md hover:shadow-lg transition-shadow duration-200">
-     <AspectRatio ratio={3 / 4} className="overflow-hidden">
-        <Image fill={true} src={src} alt="Image" className="object-cover rounded-sm" />
-      </AspectRatio>
-    </motion.div>
+    <AspectRatio onClick={onClick} ratio={aspectRatio.w /  aspectRatio.h} className={`overflow-hidden transform transition duration-300 delay-75 hover:scale-105 cursor-pointer group bg-black bg-opacity-10 rounded-md ${className}`}>
+      {blurUrl
+        ? (<Image fill={true} blurDataURL={blurUrl} placeholder={'blur'} src={src} alt='Image' className='object-cover rounded-sm' />)
+        :          ( <Image fill={true} src={src} alt='Image' className='object-cover rounded-sm' />)
+      }
+    </AspectRatio>
   )
 })
 

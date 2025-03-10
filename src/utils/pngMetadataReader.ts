@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import xxhash from "xxhash-wasm"
 import { Prisma } from '@prisma/client';
 import { TestImageCreateInput } from './scanFolder';
+import generatePreview from './previewGenerator';
 
 type InvokeMetadata = {
     generation_mode: string
@@ -27,6 +28,7 @@ export const readPngMetadata = async (imagePath: string) => {
     try {
         const createdAt = fs.statSync(imagePath).birthtime
         const imageBuffer = await fs.promises.readFile(imagePath)
+        generatePreview(imageBuffer)
 
         const { create32, } = await xxhash();
         const hash = create32().update(new Uint8Array(imageBuffer)).digest().toString()

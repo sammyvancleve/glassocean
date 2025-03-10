@@ -23,6 +23,7 @@ model Image {
     loras           LoraImageWeighting[]
     imageUrl        String
     previewlUrl     String?
+    blurUrl         String?
     folderId        Int
     // store full path here? or append to end of folder path
     folder          Folder      @relation(fields: [folderId], references: [id])

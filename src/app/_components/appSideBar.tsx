@@ -1,4 +1,4 @@
-import { Box, Boxes, Images, Settings, Tag } from "lucide-react"
+import { Box, Boxes, Images, Settings, Tag, } from 'lucide-react'
  
 import {
   Sidebar,
@@ -10,44 +10,44 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "~/components/ui/sidebar"
+} from '~/components/ui/sidebar'
  
 // Menu items.
 const items = [
   {
-    title: "Images",
-    url: "#",
+    title: 'Images',
+    url: '#',
     icon: Images,
   },
   {
-    title: "Models",
-    url: "#",
+    title: 'Models',
+    url: '#',
     icon: Box,
   },
   {
-    title: "Loras",
-    url: "#",
+    title: 'Loras',
+    url: '#',
     icon: Boxes,
   },
   {
-    title: "Tags",
-    url: "#",
+    title: 'Tags',
+    url: '#',
     icon: Tag,
   },
   {
-    title: "Settings",
-    url: "#",
+    title: 'Settings',
+    url: '#',
     icon: Settings,
-  },
+  }
 ]
 
 interface AppSidebarProps {
-    onSetDisplay: React.Dispatch<React.SetStateAction<string>>;
-  }
+  onSetDisplay: React.Dispatch<React.SetStateAction<string>>;
+}
  
-const AppSidebar: React.FC<AppSidebarProps> = ({ onSetDisplay }) => {
+const AppSidebar: React.FC<AppSidebarProps> = ({ onSetDisplay, }) => {
   return (
-    <Sidebar className="z-20">
+    <Sidebar>
       <SidebarContent>
         <SidebarHeader>
         </SidebarHeader>
@@ -58,11 +58,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ onSetDisplay }) => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onSetDisplay(item.title);
-                  }}
-                  asChild>
+                    onClick={(e) => {
+                      e.preventDefault()
+                      onSetDisplay(item.title)
+                    }}
+                    asChild>
                     <a href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
