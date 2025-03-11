@@ -115,7 +115,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = React.memo(({
 
   return (
     <div>
-      <GridGallery columns={6} children={galleryImages} className='px-4 py-3' />
+      <GridGallery columns={6} children={galleryImages} className='px-4 py-3 mb-5' />
       <div className='z-50'>
         {isModalOpen && modalImage && (
           <FullScreenModal isOpen={isModalOpen} onClose={closeModal}>

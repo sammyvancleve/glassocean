@@ -43,6 +43,11 @@ const ModalImageViewer: React.FC<GalleryImageProps> = ({
     onQuery([modelId.toString()])
   }
 
+  const handleLoraClick = (modelId: number) => {
+    onFilterChange('lora')
+    onQuery([modelId.toString()])
+  }
+
   const handlePromptClick = (prompt: string) => {
     onFilterChange('prompt')
     onQuery([prompt])
@@ -66,7 +71,7 @@ const ModalImageViewer: React.FC<GalleryImageProps> = ({
           {image.loras
               && image.loras.map((lora) => (
                 <div key={`imgview-${image.id}-${lora.model.id}`} className='flex w-full'>
-                  < ModelHover model={lora.model} weight={lora.weight} type={'lora'} onModelClick={() => handleModelClick(lora.model.id)}/>
+                  < ModelHover model={lora.model} weight={lora.weight} type={'lora'} onModelClick={() => handleLoraClick(lora.model.id)}/>
                 </div>
               ))
           }

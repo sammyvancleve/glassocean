@@ -1,4 +1,3 @@
-import { LucideTable, } from 'lucide-react'
 import { z, } from 'zod'
 
 import { createTRPCRouter, publicProcedure, } from '~/server/api/trpc'
@@ -54,11 +53,6 @@ const ImageSchema = z.object({
 })
 
 export const imageRouter = createTRPCRouter({
-  getLatestImage: publicProcedure.query(async ({ ctx, }) => {
-    const image = await ctx.db.image.findFirst()
-    return image
-  }),
-
   initialPageLoad: publicProcedure
     .input(z.object({ take: z.number(), }))
     .query(async ({ ctx, input, }) => {
@@ -100,9 +94,10 @@ export const imageRouter = createTRPCRouter({
 
   getImagesByPage: publicProcedure
     .input(z.object({
-      take: z.number(), page: z.number(), filteringOn: z.string(), query: z.string().array(), sortBy: z.string(),
+      take: z.number(), page: z.number(), filteringOn: z.string(), query: z.array(z.string()), sortBy: z.string(),
     }))
     .query(async ({ctx, input,}) => {
+      const countFilter = {where: {},}
       const filter = {
         take: input.take,
         skip: input.take * (input.page - 1),
@@ -116,16 +111,27 @@ export const imageRouter = createTRPCRouter({
       switch (input.filteringOn) {
         case 'prompt':
           filter.where = {promptLowerCase: {contains: input.query[0]?.toLowerCase(),},}
+          countFilter.where = {promptLowerCase: {contains: input.query[0]?.toLowerCase(),},}
           break
         case 'prompt_exact':
           filter.where = {
             prompt: {equals: input.query[0],},
             negativePrompt: {equals: input.query[1],},
           }
+          countFilter.where = {
+            prompt: {equals: input.query[0],},
+            negativePrompt: {equals: input.query[1],},
+          }
           break
         case 'model':
           filter.where = {model: {id: parseInt(input.query[0] ?? '0', 10),},}
+          countFilter.where = {model: {id: parseInt(input.query[0] ?? '0', 10),},}
           break
+        case 'lora': {
+          const loraModelIds = input.query.map(id => parseInt(id, 10))
+          filter.where = {loras: {some: {model: {id: { in: loraModelIds, },},},},}
+          break
+        } 
       }
       switch (input.sortBy) {
         case 'latest':
@@ -136,7 +142,8 @@ export const imageRouter = createTRPCRouter({
           break
       }
       const images = await ctx.db.image.findMany(filter)
-      return { images, }
+      const imageCount = await ctx.db.image.count(countFilter)
+      return { images, imageCount, }
     }),
 
   getLatestImagesByPage: publicProcedure

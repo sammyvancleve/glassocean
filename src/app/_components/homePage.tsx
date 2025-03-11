@@ -43,9 +43,8 @@ const HomePage: React.FC<HomePageProps> = ({ models, loras, }) => {
   const [totalPages, setTotalPages] = useState(1)
   const [filteringOn, setFilterOn] = useState<FilterOptions>(FILTER_OPTIONS.NONE)
   const [sortBy, setSortingBy] = useState<SortOptions>(SORT_OPTIONS.LATEST)
-  const [filterQuery, setFilterQuery] = useState([])
+  const [filterQuery, setFilterQuery] = useState<string[]>([])
 
-  const { data: pageCount, } = api.image.getTotalImages.useQuery()
   const {data: imageFetch, isLoading: imagesLoading, } = api.image.getImagesByPage.useQuery(
     {
       take: TOTAL_ITEMS, page: currentPage, filteringOn: filteringOn, query: filterQuery, sortBy: sortBy,
@@ -53,7 +52,6 @@ const HomePage: React.FC<HomePageProps> = ({ models, loras, }) => {
   )
   
   const handlePageChange = (page: number) => {
-    console.log('change to page', page)
     setCurrentPage(page)
   }
 
@@ -76,19 +74,23 @@ const HomePage: React.FC<HomePageProps> = ({ models, loras, }) => {
   }, [models])
 
   useEffect(() => {
-    if (pageCount?.totalImages) {
-      const calculatedTotalPages = Math.ceil(pageCount.totalImages / TOTAL_ITEMS)
+    if (imageFetch?.imageCount) {
+      const calculatedTotalPages = Math.ceil(imageFetch.imageCount / TOTAL_ITEMS)
       setTotalPages(calculatedTotalPages)
     }
-  }, [pageCount?.totalImages])
+  }, [imageFetch, filterQuery, filteringOn, sortBy])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filterQuery, filteringOn, sortBy])
 
   return (
     <SidebarProvider className='z-20'>
       <AppSidebar onSetDisplay={setDisplay} />
-      <main className='w-full bg-fixed bg-gradient-to-b from-[#eefdfd] to-[#fcf5ff] flex flex-col h-screen text-zinc-700'>
+      <main className='w-full bg-fixed bg-gradient-to-b from-[#eefdfd] to-[#f6e8fc] flex flex-col h-screen text-zinc-700'>
         <SidebarTrigger />
         <div className='relative bg-white bg-opacity-25'>
-          <ControlBar />
+          <ControlBar onQuery={setFilterQuery} onFilterChange={setFilterOn}/>
         </div>
         <div className='z-20 overflow-y-auto h-screen'>
           {(display === 'Images')
