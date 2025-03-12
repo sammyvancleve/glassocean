@@ -6,6 +6,7 @@ import { AspectRatio, } from '~/components/ui/aspect-ratio'
 
 import { Image as DbImage, Model, } from '@prisma/client'
 import ModelHover from './modelHover'
+import Tagger from './tagger'
 
 type AspectRatio = {
   w: number,
@@ -17,6 +18,10 @@ interface ImageDTO extends DbImage {
   loras: {
     model: Model,
     weight: number
+  }[],
+  tags: {
+    name: string,
+    id: number
   }[]
 }
 
@@ -61,10 +66,10 @@ const ModalImageViewer: React.FC<GalleryImageProps> = ({
       <div key={`imgview-${image.id}`} className='flex flex-col gap-2 bg-white rounded-sm w-full col-span-1 text-black overflow-scroll p-2'>
         <p>Hash: {image.hash}</p>
         <p>Seed: {image.seed}</p>
-        <div className='max-h-48 overflow-scroll'>
+        <div className='max-h-48 overflow-scroll hover:bg-slate-200 hover:cursor-pointer'>
           <p onClick={() => handlePromptClick(image.prompt)}>Prompt: {image.prompt}</p>
         </div>
-        {image.model 
+        {image.model
               && <ModelHover model={image.model} type={'main'} onModelClick={() => handleModelClick(image.model.id)}/>
         }
         <div key={`imgview-${image.id}-loras`} className='grid grid-cols-2 gap-2 w-full'>
@@ -75,6 +80,9 @@ const ModalImageViewer: React.FC<GalleryImageProps> = ({
                 </div>
               ))
           }
+        </div>
+        <div key={`imgview-${image.id}-tags`}>
+          <Tagger objectTags={image.tags} imageId={image.id} />
         </div>
       </div>
     </div>

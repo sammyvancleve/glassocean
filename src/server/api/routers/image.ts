@@ -81,6 +81,7 @@ export const imageRouter = createTRPCRouter({
         include: {
           loras: {include: {model: true,},},
           model: true,
+          tags: true,
         },
       })
 
@@ -104,6 +105,7 @@ export const imageRouter = createTRPCRouter({
         include: {
           loras: {include: {model: true,},},
           model: true,
+          tags: true,
         },
         where: {},
         orderBy: {},
@@ -156,6 +158,7 @@ export const imageRouter = createTRPCRouter({
         include: {
           loras: {include: {model: true,},},
           model: true,
+          tags: true,
         },
       })
       return { images, }

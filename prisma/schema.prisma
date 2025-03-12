@@ -11,26 +11,26 @@ datasource db {
 }
 
 model Image {
-    id              Int         @id @default(autoincrement())
+    id              Int                  @id @default(autoincrement())
     seed            String
     prompt          String
     promptLowerCase String
     negativePrompt  String?
-    hash            String      @unique
+    hash            String               @unique
     createdAt       DateTime
     modelId         Int
-    model           Model       @relation(fields: [modelId], references: [id])
+    model           Model                @relation(fields: [modelId], references: [id])
     loras           LoraImageWeighting[]
     imageUrl        String
     previewlUrl     String?
     blurUrl         String?
     folderId        Int
     // store full path here? or append to end of folder path
-    folder          Folder      @relation(fields: [folderId], references: [id])
-    rating          Int         @default(0)
+    folder          Folder               @relation(fields: [folderId], references: [id])
+    rating          Int                  @default(0)
     collections     Collection[]
     tags            Tag[]
-    flag            Int         @default(0)
+    flag            Int                  @default(0)
     // file            ImageFile   @relation(fields: [fileId], references: [id])
     // fileId          Int
 }
@@ -44,10 +44,10 @@ model Image {
 // }
 
 model Model {
-    id              Int         @id @default(autoincrement())
+    id              Int                   @id @default(autoincrement())
     name            String
     key             String
-    hash            String      @unique
+    hash            String                @unique
     base            String
     type            String
     images          Image[]
@@ -57,47 +57,49 @@ model Model {
 }
 
 model Tag {
-    id              Int         @id @default(autoincrement())
-    name            String
-    images          Image[]
+    id     Int     @id @default(autoincrement())
+    name   String  @unique
+    images Image[]
 }
 
 model LoraImageWeighting {
-    model           Model       @relation(fields: [modelId], references: [id])
-    modelId         Int
-    image           Image       @relation(fields: [imageId], references: [id])
-    imageId         Int
-    weight          Float
+    model   Model @relation(fields: [modelId], references: [id])
+    modelId Int
+    image   Image @relation(fields: [imageId], references: [id])
+    imageId Int
+    weight  Float
+
     @@id([imageId, modelId])
 }
 
 model LoraRecipeWeighting {
-    model           Model       @relation(fields: [modelId], references: [id])
-    modelId         Int
-    recipe          Recipe      @relation(fields: [recipeId], references: [id])
-    recipeId        Int
-    weight          Float
+    model    Model  @relation(fields: [modelId], references: [id])
+    modelId  Int
+    recipe   Recipe @relation(fields: [recipeId], references: [id])
+    recipeId Int
+    weight   Float
+
     @@id([recipeId, modelId])
 }
 
 model Collection {
-    id              Int     @id @default(autoincrement())
-    name            String
-    images          Image[]
+    id     Int     @id @default(autoincrement())
+    name   String
+    images Image[]
     // smart features?
 }
 
 model Recipe {
-    id              Int     @id @default(autoincrement())
-    model           Model   @relation(fields: [modelId], references: [id])
-    modelId         Int
-    loras           LoraRecipeWeighting[]
+    id      Int                   @id @default(autoincrement())
+    model   Model                 @relation(fields: [modelId], references: [id])
+    modelId Int
+    loras   LoraRecipeWeighting[]
 }
 
 model Folder {
-    id              Int     @id @default(autoincrement())
-    folderPath      String
-    images          Image[]
-    lastScannedAt   DateTime?
+    id            Int       @id @default(autoincrement())
+    folderPath    String
+    images        Image[]
+    lastScannedAt DateTime?
     //processed boolean?
 }
