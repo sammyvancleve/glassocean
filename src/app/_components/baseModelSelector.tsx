@@ -24,34 +24,11 @@ type Model = {
   label: string
 }
 
-const frameworks = [
-  {
-    value: 'next.js',
-    label: 'Next.js',
-  },
-  {
-    value: 'sveltekit',
-    label: 'SvelteKit',
-  },
-  {
-    value: 'nuxt.js',
-    label: 'Nuxt.js',
-  },
-  {
-    value: 'remix',
-    label: 'Remix',
-  },
-  {
-    value: 'astro',
-    label: 'Astro',
-  }
-]
-
 interface ModelSelectorProps {
   models: Model[]
 }
 
-const ModelSelector: React.FC<ModelSelectorProps> = ({models, }) => {
+const ModelSelector: React.FC<ModelSelectorProps> = ({ models, }) => {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState('')
 

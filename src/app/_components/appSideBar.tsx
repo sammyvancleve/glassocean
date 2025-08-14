@@ -1,5 +1,5 @@
 import { Box, Boxes, Images, Settings, Tag, } from 'lucide-react'
- 
+
 import {
   Sidebar,
   SidebarContent,
@@ -11,8 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '~/components/ui/sidebar'
- 
-// Menu items.
+
 const items = [
   {
     title: 'Images',
@@ -44,7 +43,7 @@ const items = [
 interface AppSidebarProps {
   onSetDisplay: React.Dispatch<React.SetStateAction<string>>;
 }
- 
+
 const AppSidebar: React.FC<AppSidebarProps> = ({ onSetDisplay, }) => {
   return (
     <Sidebar>
@@ -57,7 +56,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ onSetDisplay, }) => {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     onClick={(e) => {
                       e.preventDefault()
                       onSetDisplay(item.title)

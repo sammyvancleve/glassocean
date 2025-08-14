@@ -38,7 +38,7 @@ const LoraSchema = z.object({
   weight: z.number(),
 })
 
-const FolderSchema = z.object({folderPath: z.string(),})
+const FolderSchema = z.object({ folderPath: z.string(), })
 
 const ImageSchema = z.object({
   seed: z.string(),
@@ -79,7 +79,7 @@ export const imageRouter = createTRPCRouter({
         skip: input.cursor ? 1 : 0,
         cursor: input.cursor ? { id: input.cursor.id, createdAt: input.cursor.createdAt, } : undefined,
         include: {
-          loras: {include: {model: true,},},
+          loras: { include: { model: true, }, },
           model: true,
           tags: true,
         },
@@ -93,17 +93,28 @@ export const imageRouter = createTRPCRouter({
       return { images, idForCursorPagination, }
     }),
 
+  updateImageRating: publicProcedure
+    .input(z.object({ imageId: z.number(), rating: z.number(), }))
+    .mutation(async ({ ctx, input, }) => {
+      const updatedImage = await ctx.db.image.update({
+        where: { id: input.imageId, },
+        data: { rating: input.rating, },
+      })
+
+      return updatedImage
+    }),
+
   getImagesByPage: publicProcedure
     .input(z.object({
       take: z.number(), page: z.number(), filteringOn: z.string(), query: z.array(z.string()), sortBy: z.string(),
     }))
-    .query(async ({ctx, input,}) => {
-      const countFilter = {where: {},}
+    .query(async ({ ctx, input, }) => {
+      const countFilter = { where: {}, }
       const filter = {
         take: input.take,
         skip: input.take * (input.page - 1),
         include: {
-          loras: {include: {model: true,},},
+          loras: { include: { model: true, }, },
           model: true,
           tags: true,
         },
@@ -112,28 +123,33 @@ export const imageRouter = createTRPCRouter({
       }
       switch (input.filteringOn) {
         case 'prompt':
-          filter.where = {promptLowerCase: {contains: input.query[0]?.toLowerCase(),},}
-          countFilter.where = {promptLowerCase: {contains: input.query[0]?.toLowerCase(),},}
+          filter.where = { AND: input.query.map(query => ({ promptLowerCase: { contains: query.toLowerCase(), }, })), }
+          countFilter.where = filter.where
           break
         case 'prompt_exact':
           filter.where = {
-            prompt: {equals: input.query[0],},
-            negativePrompt: {equals: input.query[1],},
+            prompt: { equals: input.query[0], },
+            negativePrompt: { equals: input.query[1], },
           }
           countFilter.where = {
-            prompt: {equals: input.query[0],},
-            negativePrompt: {equals: input.query[1],},
+            prompt: { equals: input.query[0], },
+            negativePrompt: { equals: input.query[1], },
           }
           break
         case 'model':
-          filter.where = {model: {id: parseInt(input.query[0] ?? '0', 10),},}
-          countFilter.where = {model: {id: parseInt(input.query[0] ?? '0', 10),},}
+          filter.where = { model: { id: parseInt(input.query[0] ?? '0', 10), }, }
+          countFilter.where = filter.where
           break
         case 'lora': {
           const loraModelIds = input.query.map(id => parseInt(id, 10))
-          filter.where = {loras: {some: {model: {id: { in: loraModelIds, },},},},}
+          filter.where = { loras: { some: { model: { id: { in: loraModelIds, }, }, }, }, }
+          countFilter.where = filter.where
           break
-        } 
+        }
+        case 'seed': {
+          filter.where = { seed: { equals: input.query[0], }, }
+          countFilter.where = filter.where
+        }
       }
       switch (input.sortBy) {
         case 'latest':
@@ -156,7 +172,7 @@ export const imageRouter = createTRPCRouter({
         take: input.take,
         skip: input.take * (input.page - 1),
         include: {
-          loras: {include: {model: true,},},
+          loras: { include: { model: true, }, },
           model: true,
           tags: true,
         },
@@ -171,7 +187,7 @@ export const imageRouter = createTRPCRouter({
         where: { id: input.id, },
         data: { blurUrl: input.blurUrl, },
       })
-      
+
       return updated
     }),
 
@@ -180,8 +196,8 @@ export const imageRouter = createTRPCRouter({
     .query(async ({ ctx, input, }) => {
       const images = await ctx.db.image.findMany({
         where: {
-          prompt: {equals: input.prompt,},
-          negativePrompt: {equals: input.negativePrompt,},
+          prompt: { equals: input.prompt, },
+          negativePrompt: { equals: input.negativePrompt, },
         },
       })
 
@@ -191,7 +207,7 @@ export const imageRouter = createTRPCRouter({
   getUserSearchByPromptText: publicProcedure
     .input(z.object({ text: z.string(), }))
     .query(async ({ ctx, input, }) => {
-      const images = await ctx.db.image.findMany({where: {promptLowerCase: {contains: input.text.toLowerCase(),},},})
+      const images = await ctx.db.image.findMany({ where: { promptLowerCase: { contains: input.text.toLowerCase(), }, }, })
 
       return images
     }),
@@ -199,7 +215,7 @@ export const imageRouter = createTRPCRouter({
   addImageToDatabase: publicProcedure
     .input(ImageSchema)
     .mutation(async ({ ctx, input, }) => {
-      const existingImage = await ctx.db.image.findUnique({where: {hash: input.hash,},})
+      const existingImage = await ctx.db.image.findUnique({ where: { hash: input.hash, }, })
       if (!existingImage) {
         return ctx.db.image.create({
           data: {
@@ -215,7 +231,7 @@ export const imageRouter = createTRPCRouter({
             },
             folderId: undefined,
             //excluding folderId fixes things???
-            folder: {connect: {id: input.folderId,},},
+            folder: { connect: { id: input.folderId, }, },
             loras: {
               create: input.loras.map(lora => {
                 return {
